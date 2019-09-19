@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class WeChatUtil {
     //token可以自己进行定义，必须为英文或者是数字，长度为3-32字符，这个token要跟服务器配置中的token一致
-    private static String token = "d-wade";
+    private static String token = "dywane3wade";
 
     /**
      * 校验签名
