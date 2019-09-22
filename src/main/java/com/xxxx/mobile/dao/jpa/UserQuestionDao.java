@@ -1,6 +1,6 @@
-package com.xxxx.mobile.dao;
+package com.xxxx.mobile.dao.jpa;
 
-import com.xxxx.mobile.bean.intelligentanswer.po.UserQuestion;
+import com.xxxx.mobile.bean.intelligentanswer.po.jpa.UserQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

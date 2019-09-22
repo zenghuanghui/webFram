@@ -3,9 +3,15 @@ package com.xxxx.common.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.xxxx.common.bean.output.TextMessage;
+import com.xxxx.common.service.WeChatService;
 import com.xxxx.common.util.MessageReplyUtil;
 import com.xxxx.common.util.MessageRevieveUtil;
 import com.xxxx.common.util.WeChatUtil;
+import com.xxxx.mobile.service.MobileAnswerService;
+import com.xxxx.mobile.service.UserInfoService;
+import com.xxxx.mobile.service.UserQuestionService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +27,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/weChat")
 public class WeChatController {
+
+    @Autowired
+    private WeChatService weChatService;
+
+    @Autowired
+    private UserInfoService userInfoService;
+
+    @Autowired
+    private UserQuestionService userQuestionService;
+
+    @Autowired
+    private MobileAnswerService mobileAnswerService;
 
     @GetMapping()
     public void validToken(HttpServletRequest request, HttpServletResponse response){
@@ -63,19 +81,25 @@ public class WeChatController {
         String msgType = requestMap.get("MsgType");
         String message = requestMap.get("Content");
 
+        userInfoService.saveWeChatUserInfo(fromUserName);
         TextMessage textMessage = new TextMessage();
         textMessage.setToUserName(fromUserName);
         textMessage.setFromUserName(toUserName);
         textMessage.setCreateTime(new Date().getTime());
 
-
         //判断发送的类型是文本
         if(MessageRevieveUtil.TEXT_MESSAGE.equals(msgType)){
-            textMessage.setContent("您发送的是文本消息: " + message);
-        }else{
-            textMessage.setContent("不能识别的消息~~ ");
-        }
+            userQuestionService.saveUserQuestion(fromUserName, message);
+            String answer = mobileAnswerService.getAnswer(message);
+            if (StringUtils.isNotEmpty(answer)) {
 
+                textMessage.setContent(answer);
+            }else{
+                textMessage.setContent("这个问题难道俺老孙啦！！！");
+            }
+        }else{
+            textMessage.setContent("俺老孙文化低，只认识文字呢！！！");
+        }
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/xml");
         System.out.println(JSON.toJSONString(textMessage));
